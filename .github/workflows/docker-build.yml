@@ -1,4 +1,4 @@
-name: Angular Docker CI
+name: Angular Docker CI/CD
 
 on:
   push:
@@ -7,6 +7,10 @@ on:
   pull_request:
     branches:
       - master
+
+permissions:
+  id-token: write
+  contents: read
 
 jobs:
   build:
@@ -28,5 +32,24 @@ jobs:
       - name: Build Angular application
         run: npm run build
 
+      - name: Login to Azure
+        uses: azure/login@v2
+        with:
+          client-id: ${{ secrets.AZURE_CLIENT_ID }}
+          tenant-id: ${{ secrets.AZURE_TENANT_ID }}
+          subscription-id: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
+
+      - name: Login to Azure Container Registry
+        run: az acr login --name rohitangularacr2026
+
       - name: Build Docker image
-        run: docker build -t docker-angular-app .
+        run: |
+          docker build \
+            -t rohitangularacr2026.azurecr.io/docker-angular-app:${{ github.sha }} \
+            -t rohitangularacr2026.azurecr.io/docker-angular-app:latest \
+            .
+
+      - name: Push Docker image to ACR
+        run: |
+          docker push rohitangularacr2026.azurecr.io/docker-angular-app:${{ github.sha }}
+          docker push rohitangularacr2026.azurecr.io/docker-angular-app:latest
