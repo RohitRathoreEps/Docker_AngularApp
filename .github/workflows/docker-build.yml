@@ -58,5 +58,5 @@ jobs:
         uses: azure/container-apps-deploy-action@v2
         with:
           resourceGroup: rg-docker-angular
-          containerAppName: YOUR_CONTAINER_APP_NAME
+          containerAppName: docker-angular-app
           imageToDeploy: rohitangularacr2026.azurecr.io/docker-angular-app:${{ github.sha }}
